@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,25 +29,26 @@ public class ReportUpdateConsumerServiceIT {
     private static final String NEXT_BATCH = "SELECT pgq.next_batch('ar_data.q_failed_rules', " +
             "'simple-report-generator')";
 
-    private static final String UPDATE_STATEMENT = "UPDATE ar_data.offer SET o_updated_at = now() WHERE o_id = 189676653";
+    private static final String UPDATE_STATEMENT = "UPDATE ar_data.offer SET o_updated_at = now() WHERE o_id = " +
+            "189676653";
 
     @Autowired
     private ShardedDataSource shardedDataSource;
     @Autowired
     private ReportUpdateConsumerService reportUpdateConsumerService;
 
-//    @Test
-//    public void noEventPushedToQueueOneShard() throws SQLException, InterruptedException {
-//        // given
-//        int shardId = 1;
-//        cleanQueue(shardId);
-//
-//        // when
-//        List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
-//
-//        // then
-//        assertThat(batch).isEmpty();
-//    }
+    @Test
+    public void noEventPushedToQueueOneShard() throws SQLException, InterruptedException {
+        // given
+        int shardId = 1;
+        cleanQueue(shardId);
+
+        // when
+        List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
+
+        // then
+        assertThat(batch).isEmpty();
+    }
 
     @Test
     public void singleEventPushedToQueueAndConsumedOneShard() throws SQLException, InterruptedException {
@@ -52,8 +56,8 @@ public class ReportUpdateConsumerServiceIT {
         int shardId = 1;
         cleanQueue(shardId);
         insertEventToQueue(shardId);
-        Thread.sleep(1000);
-
+//        Thread.sleep(1000);
+//
 //        // when
 //        List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
 //
@@ -69,32 +73,29 @@ public class ReportUpdateConsumerServiceIT {
 //        assertThat(batch).isEmpty();
     }
 
-//    @Test
-//    public void singleEventPushedToQueueAndConsumedMultipleShards() throws SQLException, InterruptedException {
-//        // given
-//        IntStream.range(1, 17).forEach(shardId -> {
-//            cleanQueue(shardId);
-//            insertEventToQueue(shardId);
-//        });
-//
-//        // when
-//        Thread.sleep(1000);
-//        IntStream.range(1, 17).forEach(shardId -> {
-//            try {
-//                List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
-//                assertThat(batch).isNotEmpty();
-//            } catch (InterruptedException e) {
-//                assertThat(true).isFalse();
-//            }
-//        });
-//    }
-//
+    @Test
+    @Ignore
+    public void singleEventPushedToQueueAndConsumedMultipleShards() throws SQLException, InterruptedException {
+        // given
+        IntStream.range(1, 17).forEach(shardId -> {
+            cleanQueue(shardId);
+            insertEventToQueue(shardId);
+        });
+
+        // when
+        Thread.sleep(1000);
+        IntStream.range(1, 17).forEach(shardId -> {
+            List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
+            assertThat(batch).isNotEmpty();
+        });
+    }
+
 
     private void cleanQueue(final int shardId) {
         Integer batchId;
         try {
             while ((batchId = getNextBatchId(shardId)) != null) {
-                System.out.println("Test Finish batch id = " + batchId);
+                System.out.println("TEST CleanQueue: Finish batch id = " + batchId);
                 getJdbcTemplate(shardId).execute(String.format("SELECT pgq.finish_batch(%s)", batchId));
             }
         } catch (InterruptedException e) {
