@@ -24,7 +24,7 @@ public class StreamManager {
     private final Map<Integer, Future> partitionIdToFuture = Maps.newConcurrentMap();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final ReportUpdateConsumerService reportUpdateConsumerService;
-    private boolean streamingEnabled = true;
+    private boolean streamingEnabled = false    ;
 
     @Autowired
     public StreamManager(final ReportUpdateConsumerService reportUpdateConsumerService) {

@@ -39,6 +39,9 @@ public class PGQService {
             SimpleReportData simpleReportData = gson.fromJson(json, SimpleReportData.class);
             LOG.info("simpleReportData: {}", simpleReportData);
 
+            String simpleReportDataAsJson = gson.toJson(json);
+            LOG.info("simpleReportDataAsJson: {}", simpleReportDataAsJson); // TODO keep order in mind sweety!
+
             return simpleReportData;
         }
     };

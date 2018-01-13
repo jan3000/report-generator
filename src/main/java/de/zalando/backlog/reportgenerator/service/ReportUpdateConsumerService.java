@@ -11,17 +11,20 @@ import org.springframework.stereotype.Service;
 
 import de.zalando.backlog.reportgenerator.domain.SimpleReportData;
 import de.zalando.backlog.reportgenerator.repository.PGQService;
+import de.zalando.backlog.reportgenerator.repository.ReportStoreService;
 
 @Service
 public class ReportUpdateConsumerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportUpdateConsumerService.class);
     private PGQService pgqService;
+    private ReportStoreService reportStoreService;
     private boolean streamingEnabled = true;
 
     @Autowired
-    public ReportUpdateConsumerService(PGQService pgqService) {
+    public ReportUpdateConsumerService(final PGQService pgqService, final ReportStoreService reportStoreService) {
         this.pgqService = pgqService;
+        this.reportStoreService = reportStoreService;
     }
 
     public List<SimpleReportData> processNextBatchIfAvailable(int partitionId) {
@@ -41,6 +44,8 @@ public class ReportUpdateConsumerService {
             }
         } else {
             LOG.error("Process batch: " + batch);
+            reportStoreService.upsertSimpleReportData(batch);
+
             pgqService.finishBatch(partitionId, batchId);
             return batch;
         }
