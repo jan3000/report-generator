@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.sql.DataSource;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 
 import de.zalando.backlog.reportgenerator.domain.ShardedDataSource;
+import de.zalando.backlog.reportgenerator.domain.SimpleReportData;
 
 @Service
 public class PGQService {
@@ -22,21 +24,22 @@ public class PGQService {
     private static final Logger LOG = LoggerFactory.getLogger(PGQService.class);
     private static final String GET_NEXT_BATCH = "SELECT pgq.next_batch('ar_data.q_failed_rules', " +
             "'simple-report-generator')";
-    private static final String GET_BATCH = "SELECT ev_id, ev_data, ev_type FROM pgq.get_batch_events(%s)";
+    private static final String GET_BATCH = "SELECT ev_id, %s, ev_type FROM pgq.get_batch_events(%s)";
     private static final String FINISH_BATCH = "SELECT pgq.finish_batch(%s)";
-    private static final RowMapper<String> STRING_ROW_MAPPER = new RowMapper<String>() {
+    public static final String EV_DATA = "ev_data";
+
+    private static final RowMapper<SimpleReportData> STRING_ROW_MAPPER = new RowMapper<SimpleReportData>() {
         @Override
-        public String mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-            String json = null;
+        public SimpleReportData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
             LOG.info("Trying to parse resultSet");
-            json = rs.getString(2);
+            String json = rs.getString(EV_DATA);
             LOG.info("Parsed resultSet json: {}", json);
 
-//            Gson gson = new Gson();
-//            PGQEvent pgqEvent = gson.fromJson(json, PGQEvent.class);
-//            LOG.info("pgqEvent: ", pgqEvent);
+            Gson gson = new Gson();
+            SimpleReportData simpleReportData = gson.fromJson(json, SimpleReportData.class);
+            LOG.info("simpleReportData: {}", simpleReportData);
 
-            return json;
+            return simpleReportData;
         }
     };
 
@@ -54,13 +57,9 @@ public class PGQService {
         return batchId;
     }
 
-    public List<String> getBatch(final int shardId, final int batchId) {
-
-
+    public List<SimpleReportData> getBatch(final int shardId, final int batchId) {
         LOG.info("Get batch for id: {}", batchId);
-        return getJdbcTemplate(shardId).query(String.format(GET_BATCH, batchId), STRING_ROW_MAPPER);
-
-        // return getJdbcTemplate(shardId).queryForList(String.format(GET_BATCH, batchId), String.class);
+        return getJdbcTemplate(shardId).query(String.format(GET_BATCH, EV_DATA, batchId), STRING_ROW_MAPPER);
     }
 
     public void finishBatch(final int shardId, final int batchId) {

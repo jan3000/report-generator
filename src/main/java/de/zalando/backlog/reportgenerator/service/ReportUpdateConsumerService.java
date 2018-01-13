@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import de.zalando.backlog.reportgenerator.domain.SimpleReportData;
 import de.zalando.backlog.reportgenerator.repository.PGQService;
 
 @Service
@@ -23,10 +24,10 @@ public class ReportUpdateConsumerService {
         this.pgqService = pgqService;
     }
 
-    public List<String> processNextBatchIfAvailable(int partitionId) {
+    public List<SimpleReportData> processNextBatchIfAvailable(int partitionId) {
         LOG.info("Process next batch on partition {}", partitionId);
         Integer batchId;
-        List<String> batch = Lists.newArrayList();
+        List<SimpleReportData> batch = Lists.newArrayList();
         while ((batchId = pgqService.getNextBatchId(partitionId)) != null && (batch = pgqService.getBatch(partitionId,
                 batchId)).isEmpty()) {
             pgqService.finishBatch(partitionId, batchId);

@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 import de.zalando.backlog.reportgenerator.domain.ShardedDataSource;
+import de.zalando.backlog.reportgenerator.domain.SimpleReportData;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -29,8 +30,7 @@ public class ReportUpdateConsumerServiceIT {
     private static final String NEXT_BATCH = "SELECT pgq.next_batch('ar_data.q_failed_rules', " +
             "'simple-report-generator')";
 
-    private static final String UPDATE_STATEMENT = "UPDATE ar_data.offer SET o_updated_at = now() WHERE o_id = " +
-            "189676653";
+    private static final String UPDATE_STATEMENT = "UPDATE ar_data.offer SET o_updated_at = now() WHERE o_id = %s;";
 
     @Autowired
     private ShardedDataSource shardedDataSource;
@@ -44,33 +44,33 @@ public class ReportUpdateConsumerServiceIT {
         cleanQueue(shardId);
 
         // when
-        List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
+        List<SimpleReportData> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
 
         // then
         assertThat(batch).isEmpty();
     }
 
     @Test
-    public void singleEventPushedToQueueAndConsumedOneShard() throws SQLException, InterruptedException {
+    public void twoEventsPushedToQueueAndConsumedOneShard() throws SQLException, InterruptedException {
         // given
         int shardId = 1;
         cleanQueue(shardId);
         insertEventToQueue(shardId);
-//        Thread.sleep(1000);
-//
-//        // when
-//        List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
-//
-//        // then
-//        assertThat(batch).isNotEmpty();
-//        System.out.println("batch " + batch);
-//
-//
-//        // when
-//        batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
-//
-//        // then
-//        assertThat(batch).isEmpty();
+        Thread.sleep(1000);
+
+        // when
+        List<SimpleReportData> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
+
+        // then
+        assertThat(batch).size().isEqualTo(2);
+        System.out.println("11111111111111 " + batch);
+
+
+        // when
+        batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
+
+        // then
+        assertThat(batch).isEmpty();
     }
 
     @Test
@@ -85,7 +85,7 @@ public class ReportUpdateConsumerServiceIT {
         // when
         Thread.sleep(1000);
         IntStream.range(1, 17).forEach(shardId -> {
-            List<String> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
+            List<SimpleReportData> batch = reportUpdateConsumerService.processNextBatchIfAvailable(shardId);
             assertThat(batch).isNotEmpty();
         });
     }
@@ -110,9 +110,6 @@ public class ReportUpdateConsumerServiceIT {
 
     private void insertEventToQueue(final int shardId) {
         JdbcTemplate jdbcTemplate = getJdbcTemplate(shardId);
-//        jdbcTemplate.execute(INSERT_FIRST);
-//        jdbcTemplate.execute(INSERT_STATEMENT);
-//        jdbcTemplate.execute(UPDATE_STATEMENT);
 
         String sqlFileAsString = null;
         try {
@@ -123,10 +120,10 @@ public class ReportUpdateConsumerServiceIT {
         }
         String[] sqlStatements = sqlFileAsString.split(";");
         Lists.newArrayList(sqlStatements).forEach(sql -> {
-//            System.out.println("save " + sql);
             jdbcTemplate.execute(sql);
         });
-        jdbcTemplate.execute(UPDATE_STATEMENT);
+        jdbcTemplate.execute(String.format(UPDATE_STATEMENT,"189676148"));
+        jdbcTemplate.execute(String.format(UPDATE_STATEMENT,"189676653"));
 
     }
 
