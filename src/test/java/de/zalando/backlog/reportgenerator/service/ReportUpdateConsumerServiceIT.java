@@ -126,6 +126,11 @@ public class ReportUpdateConsumerServiceIT {
         });
         jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "189676148"));
         jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "189676653"));
+        jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "184190330"));
+        jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "184190839"));
+
+
+
 
     }
 

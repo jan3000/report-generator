@@ -4,7 +4,10 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SimpleReportData {
+
+import de.zalando.backlog.reportgenerator.streamer.domain.Event;
+
+public class SimpleReportData extends Event {
 
 
     @SerializedName("rp_product_id")
