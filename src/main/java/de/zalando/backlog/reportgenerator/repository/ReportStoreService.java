@@ -17,9 +17,10 @@ import de.zalando.backlog.reportgenerator.domain.SimpleReportData;
 @Repository
 public class ReportStoreService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ReportStoreService.class);
+
     private static final Gson GSON = new Gson();
     private static final String UPSERT_SIMPLE_REPORT_DATA = "SELECT ar_report.upsert_simple_report_data('%s')";
-    private static final Logger LOG = LoggerFactory.getLogger(ReportStoreService.class);
 
     private ShardedDataSource shardedDataSource;
 
@@ -29,6 +30,7 @@ public class ReportStoreService {
     }
 
     public void upsertSimpleReportData(List<SimpleReportData> simpleReportDataJson) {
+        LOG.info("Saving {} simpleReportData event(s)", simpleReportDataJson.size());
         try {
             String json = GSON.toJson(simpleReportDataJson);
             LOG.info("Saving simpleReportData: {}", json);

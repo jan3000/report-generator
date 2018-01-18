@@ -115,7 +115,7 @@ public class ReportUpdateConsumerServiceIT {
 
         String sqlFileAsString = null;
         try {
-            InputStream resourceAsStream = this.getClass().getResourceAsStream("/report-store.sql");
+            InputStream resourceAsStream = this.getClass().getResourceAsStream("/report_store.sql");
             sqlFileAsString = IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
@@ -126,6 +126,11 @@ public class ReportUpdateConsumerServiceIT {
         });
         jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "189676148"));
         jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "189676653"));
+        jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "184190330"));
+        jdbcTemplate.execute(String.format(UPDATE_STATEMENT, "184190839"));
+
+
+
 
     }
 

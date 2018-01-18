@@ -27,6 +27,8 @@ public class ReportUpdateConsumerService {
         this.reportStoreService = reportStoreService;
     }
 
+    // TODO can be deleted when IT is refactored!!!
+
     public List<SimpleReportData> processNextBatchIfAvailable(int partitionId) {
         LOG.info("Process next batch on partition {}", partitionId);
         Integer batchId;
@@ -38,7 +40,7 @@ public class ReportUpdateConsumerService {
         if (batchId == null) {
             LOG.info("Sleep because batch id is null");
             try {
-                Thread.sleep(2000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 LOG.warn("Sleeping thread interrupted", e);
             }

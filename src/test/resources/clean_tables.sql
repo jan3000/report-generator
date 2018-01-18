@@ -1,0 +1,17 @@
+DELETE FROM ar_data.price;
+DELETE FROM ar_data.stock;
+DELETE FROM ar_data.selection_tuple;
+DELETE FROM ar_data.rule_failure;
+DELETE FROM ar_data.rule_definition;
+DELETE FROM ar_data.rule_type;
+DELETE FROM ar_data.block_reason;
+DELETE FROM ar_data.offer;
+DELETE FROM ar_data.content;
+DELETE FROM ar_data.retail_product_metadata;
+DELETE FROM ar_data.retail_product;
+DELETE FROM ar_data.merchant;
+DELETE FROM psh_data.config_history;
+DELETE FROM ar_data.config;
+DELETE FROM ar_report.rule_failure_simple_report;
+DELETE FROM ar_report.simple_report_data;
+DELETE FROM ar_report.config_content;
