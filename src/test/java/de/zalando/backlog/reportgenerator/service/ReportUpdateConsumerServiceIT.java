@@ -115,7 +115,7 @@ public class ReportUpdateConsumerServiceIT {
 
         String sqlFileAsString = null;
         try {
-            InputStream resourceAsStream = this.getClass().getResourceAsStream("/report-store.sql");
+            InputStream resourceAsStream = this.getClass().getResourceAsStream("/report_store.sql");
             sqlFileAsString = IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
